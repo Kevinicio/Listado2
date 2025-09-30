@@ -22,7 +22,6 @@ class MainActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerView)
         fabAgregar = findViewById(R.id.fabAgregar)
 
-        // 🔹 Datos iniciales con la imagen crow.png
         listaAlumnos = mutableListOf(
             Alumno("Kevin Ramirez", "20101545", "kevin@mail.com", R.drawable.crow),
             Alumno("Luis Pedro", "20162030", "luis@mail.com", R.drawable.crow),
@@ -31,23 +30,50 @@ class MainActivity : AppCompatActivity() {
             Alumno("Antonio de Jesús", "20112356", "antonio@mail.com", R.drawable.crow)
         )
 
-        // 🔹 Adapter con callback para eliminar
-        adapter = AlumnoAdapter(listaAlumnos) { position ->
-            AlertDialog.Builder(this)
-                .setTitle("Eliminar Alumno")
-                .setMessage("¿Deseas eliminar a ${listaAlumnos[position].nombre}?")
-                .setPositiveButton("Sí") { _, _ ->
-                    listaAlumnos.removeAt(position)
-                    adapter.notifyItemRemoved(position)
-                }
-                .setNegativeButton("No", null)
-                .show()
-        }
+        adapter = AlumnoAdapter(
+            listaAlumnos,
+            onEliminar = { position ->
+                AlertDialog.Builder(this)
+                    .setTitle("Eliminar Alumno")
+                    .setMessage("¿Deseas eliminar a ${listaAlumnos[position].nombre}?")
+                    .setPositiveButton("Sí") { _, _ ->
+                        listaAlumnos.removeAt(position)
+                        adapter.notifyItemRemoved(position)
+                    }
+                    .setNegativeButton("No", null)
+                    .show()
+            },
+            onEditar = { position ->
+                val alumno = listaAlumnos[position]
+                val dialogView = layoutInflater.inflate(R.layout.dialog_agregar_alumno, null)
+                val edtNombre = dialogView.findViewById<EditText>(R.id.edtNombre)
+                val edtCuenta = dialogView.findViewById<EditText>(R.id.edtCuenta)
+                val edtCorreo = dialogView.findViewById<EditText>(R.id.edtCorreo)
+
+                edtNombre.setText(alumno.nombre)
+                edtCuenta.setText(alumno.cuenta)
+                edtCorreo.setText(alumno.correo)
+
+                AlertDialog.Builder(this)
+                    .setTitle("Editar Alumno")
+                    .setView(dialogView)
+                    .setPositiveButton("Guardar") { _, _ ->
+                        val nombre = edtNombre.text.toString()
+                        val cuenta = edtCuenta.text.toString()
+                        val correo = edtCorreo.text.toString()
+                        if (nombre.isNotEmpty() && cuenta.isNotEmpty() && correo.isNotEmpty()) {
+                            listaAlumnos[position] = Alumno(nombre, cuenta, correo, R.drawable.crow)
+                            adapter.notifyItemChanged(position)
+                        }
+                    }
+                    .setNegativeButton("Cancelar", null)
+                    .show()
+            }
+        )
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 
-        // 🔹 Acción del botón "Agregar" con formulario
         fabAgregar.setOnClickListener {
             val dialogView = layoutInflater.inflate(R.layout.dialog_agregar_alumno, null)
             val edtNombre = dialogView.findViewById<EditText>(R.id.edtNombre)
@@ -61,8 +87,7 @@ class MainActivity : AppCompatActivity() {
                     val nombre = edtNombre.text.toString()
                     val cuenta = edtCuenta.text.toString()
                     val correo = edtCorreo.text.toString()
-
-                    if(nombre.isNotEmpty() && cuenta.isNotEmpty() && correo.isNotEmpty()) {
+                    if (nombre.isNotEmpty() && cuenta.isNotEmpty() && correo.isNotEmpty()) {
                         listaAlumnos.add(Alumno(nombre, cuenta, correo, R.drawable.crow))
                         adapter.notifyItemInserted(listaAlumnos.size - 1)
                         recyclerView.scrollToPosition(listaAlumnos.size - 1)

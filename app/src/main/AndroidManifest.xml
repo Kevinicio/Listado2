@@ -9,12 +9,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"> <!-- 🔹 Corregido para Android 12+ -->
+        <activity android:name=".RegistrarActivity" android:exported="true"/>
+        <activity android:name=".MainActivity" android:exported="true"/>
+        <activity android:name=".LoginActivity" android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
